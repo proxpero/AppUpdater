@@ -2,7 +2,7 @@
 
 A package to simply fetch an app's current store version (major.minor.patch). This can be used to test whether a user has the same version of your app as is in the App Store.
 
-That's all there is to it. Playground included.
+That's all there is to it. Playground included. Tests included.
 
 ``` swift
 import AppUpdater
