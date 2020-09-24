@@ -4,7 +4,7 @@ A package to simply fetch an app's current store version (major.minor.patch). Th
 
 That's all there is to it. Playground included.
 
-```
+``` swift
 import AppUpdater
 import PlaygroundSupport
 
