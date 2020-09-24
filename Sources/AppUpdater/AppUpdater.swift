@@ -97,3 +97,18 @@ extension URLSession {
         })
     }
 }
+
+public extension Bundle {
+
+    var semanticVersion: String {
+        return object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
+    }
+
+    var buildNumber: String {
+        return object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
+    }
+
+    var appVersion: AppVersion {
+        return AppVersion(semanticVersion) ?? .zero
+    }
+}

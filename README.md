@@ -30,3 +30,9 @@ AppVersion.storeVersion(bundleId: "com.myCompany") { result in
     PlaygroundPage.current.finishExecution()
 }
 ```
+
+In your app, you can load a device's current app version from the main bundle using the extension:
+```swift
+import Foundation
+let version = Bundle.main.appVersion // This fails in a playground because playgrounds don't have versions.
+```
