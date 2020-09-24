@@ -19,6 +19,23 @@ public struct AppVersion {
     public static let zero = AppVersion.init(major: 0, minor: 0, patch: 0)
 }
 
+public extension AppVersion {
+    init?(_ value: String) {
+        let values = value.split(separator: ".")
+        guard
+            values.count == 3,
+            let major = Int(values[0]),
+            let minor = Int(values[1]),
+            let patch = Int(values[2])
+        else {
+            return nil
+        }
+        self.major = major
+        self.minor = minor
+        self.patch = patch
+    }
+}
+
 extension AppVersion: Comparable {
     public static func < (lhs: AppVersion, rhs: AppVersion) -> Bool {
         if lhs.major != rhs.major { return lhs.major < rhs.major }
@@ -34,26 +51,10 @@ extension AppVersion: CustomStringConvertible {
 }
 
 public extension AppVersion {
-
-    init?(input: String) {
-        let values = input.split(separator: ".")
-        guard
-            values.count == 3,
-            let major = Int(values[0]),
-            let minor = Int(values[1]),
-            let patch = Int(values[2])
-        else {
-            return nil
-        }
-        self.major = major
-        self.minor = minor
-        self.patch = patch
-    }
-
     static func storeVersion(
         bundleId: String = Bundle.main.bundleIdentifier!, // Never nil
         session: URLSession = URLSession.shared,
-        completion: @escaping (Result<(AppVersion, URL), Error>) -> Void
+        completion: @escaping (Result<(storeVersion: AppVersion, storeUrl: URL), Error>) -> Void
     ) {
         let url = URL(string: "https://itunes.apple.com/lookup?bundleId=\(bundleId)")!
         session.dataTask(with: url) { result in
@@ -65,14 +66,14 @@ public extension AppVersion {
                     let first = object["results"] as? [Any], first.count > 0,
                     let info = first[0] as? [String: Any],
                     let versionString = info["version"] as? String,
-                    let appVersion = AppVersion(input: versionString),
+                    let storeVersion = AppVersion(versionString),
                     let urlString = info["trackViewUrl"] as? String,
-                    let itunesUrl = URL(substring: urlString.dropLast(5))
+                    let storeUrl = URL(string: urlString)
                 else {
                     completion(.failure(NSError(domain: "com.appupdater", code: -2, userInfo: nil)))
                     return
                 }
-                completion(.success((appVersion, itunesUrl)))
+                completion(.success((storeVersion, storeUrl)))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -89,16 +90,10 @@ extension URLSession {
                 return
             }
             guard let data = data else {
-                completionHandler(.failure(NSError(domain: "com.appupdater", code: -1, userInfo: ["Is there any data?": false])))
+                completionHandler(.failure(NSError(domain: "com.appupdater", code: -1, userInfo: [:])))
                 return
             }
             completionHandler(.success(data))
         })
-    }
-}
-
-extension URL {
-    init?(substring: Substring) {
-        self.init(string: String(substring))
     }
 }
